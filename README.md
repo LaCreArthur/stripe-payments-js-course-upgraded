@@ -1,4 +1,9 @@
-## Fullstack Stripe Payments for the JavaScript Developer
+## Fullstack Stripe Payments for the JavaScript Developer - Upgraded to node 16, firebase v9 and stripe api "2022-08-01"
+
+Everything has been tested, it works both locally, with Firebase Functions Emulator or fully deployed to Firebase.
+You will have to set your .env variables, google account credentials, firebase project id and firestore configs for it to work.
+
+## Original README
 
 Build a fullstack [Stripe Payments](https://stripe.com/) solution with Node.js. Learn the following concepts...
 
@@ -10,18 +15,17 @@ Build a fullstack [Stripe Payments](https://stripe.com/) solution with Node.js. 
 - Integrate with real cloud infrastructure (Firebase Auth & Firestore)
 - Deploy as a Docker Container OR to Firebase Cloud Functions
 
+Try the [Live Demo](https://stripe-js-course.firebaseapp.com) (React).
 
-Try the [Live Demo](https://stripe-js-course.firebaseapp.com) (React). 
-
-Enroll in the [Stripe JavaScript Course](https://fireship.io/courses/stripe-js). 
+Enroll in the [Stripe JavaScript Course](https://fireship.io/courses/stripe-js).
 
 ## Usage
 
-Clone this repo. 
+Clone this repo.
 
 ## Backend Setup
 
-The `/server` directory contains the Node.js API. Replace the `.env` file with your API credentials. 
+The `/server` directory contains the Node.js API. Replace the `.env` file with your API credentials.
 
 ```
 cd server
@@ -32,16 +36,15 @@ npm run dev
 
 ## Running Webhooks in Development
 
-Install the [Stripe CLI](https://stripe.com/docs/stripe-cli) to run webhooks in development. 
+Install the [Stripe CLI](https://stripe.com/docs/stripe-cli) to run webhooks in development.
 
 ```
 stripe listen --forward-to localhost:3333/hooks
 ```
 
-
 ## Frontend Setup
 
-The backend API can be integrated with the following frontend frameworks. 
+The backend API can be integrated with the following frontend frameworks.
 
 ### React
 
@@ -51,11 +54,11 @@ npm install
 npm start
 ```
 
-### Angular 
+### Angular
 
 Work in Progress
 
-### Vue 
+### Vue
 
 Work in Progress
 
@@ -63,19 +66,17 @@ Work in Progress
 
 ### Option 1 - Docker
 
-Dockerize the server for deployment to services like Cloud Run, GKE, Elastic Beanstalk, etc. 
-
+Dockerize the server for deployment to services like Cloud Run, GKE, Elastic Beanstalk, etc.
 
 ```
 cd server
 docker build -t fireship/stripe-server .
-docker run -p 3333:3333 fireship/stripe-server 
+docker run -p 3333:3333 fireship/stripe-server
 ```
-
 
 ### Option 2 - Firebase Cloud Functions
 
-Deploy to Cloud Functions to simplify your code with a tight integration to Firebase. 
+Deploy to Cloud Functions to simplify your code with a tight integration to Firebase.
 
 ```
 firebase deploy --only functions
