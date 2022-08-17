@@ -1,4 +1,9 @@
+# Node
 /node_modules
 /lib
 service-account.json
 .env
+.vscode
+.editorconfig
+.eslintrc.json
+serviceAccountKey.json

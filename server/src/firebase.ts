@@ -1,7 +1,10 @@
-// Initialize Firebase Admin resources
+import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 
-import * as firebaseAdmin from 'firebase-admin';
-firebaseAdmin.initializeApp();
+const app = initializeApp({
+  credential: applicationDefault(),
+});
 
-export const db = firebaseAdmin.firestore();
-export const auth = firebaseAdmin.auth();
+export const db = getFirestore(app);
+export const auth = getAuth(app);

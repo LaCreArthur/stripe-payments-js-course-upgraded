@@ -1,8 +1,8 @@
-import { stripe } from '.';
-import { db } from './firebase';
-import Stripe from 'stripe';
-import { getOrCreateCustomer } from './customers';
-import { firestore } from 'firebase-admin';
+import { stripe } from "./api";
+import { db } from "./firebase";
+import Stripe from "stripe";
+import { getOrCreateCustomer } from "./customers";
+import { firestore } from "firebase-admin";
 
 /**
  * Attaches a payment method to the Stripe customer,
@@ -30,16 +30,16 @@ export async function createSubscription(
   const subscription = await stripe.subscriptions.create({
     customer: customer.id,
     items: [{ price }],
-    expand: ['latest_invoice.payment_intent'],
+    expand: ["latest_invoice.payment_intent"],
   });
 
   const invoice = subscription.latest_invoice as Stripe.Invoice;
   const payment_intent = invoice.payment_intent as Stripe.PaymentIntent;
 
   // Update the user's status
-  if (payment_intent.status === 'succeeded') {
+  if (payment_intent.status === "succeeded") {
     await db
-      .collection('users')
+      .collection("users")
       .doc(userId)
       .set(
         {
@@ -65,7 +65,7 @@ export async function cancelSubscription(
 
   // prevent an user to cancel a subscription of another user
   if (customer.metadata.firebaseUID !== userId) {
-    throw Error('Firebase UID does not match Stripe Customer');
+    throw Error("Firebase UID does not match Stripe Customer");
   }
   const subscription = await stripe.subscriptions.del(subscriptionId);
 
@@ -73,9 +73,9 @@ export async function cancelSubscription(
   // this needs a webhook to update firestore at the end of period
   // const subscription = await stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true})
 
-  if (subscription.status === 'canceled') {
+  if (subscription.status === "canceled") {
     await db
-      .collection('users')
+      .collection("users")
       .doc(userId)
       .update({
         activePlans: firestore.FieldValue.arrayRemove(

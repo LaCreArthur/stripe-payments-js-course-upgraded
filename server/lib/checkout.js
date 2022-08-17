@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const _1 = require("./");
+exports.createStripeCheckoutSession = void 0;
+const _1 = require(".");
 /**
  * Creates a Stripe Checkout session with line items
  */
@@ -18,6 +19,7 @@ async function createStripeCheckoutSession(line_items) {
     const session = await _1.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items,
+        mode: 'payment',
         success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${url}/failed`,
     });

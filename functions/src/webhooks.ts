@@ -1,5 +1,5 @@
-import { stripe } from '.';
-import Stripe from 'stripe';
+import { stripe } from "./api";
+import Stripe from "stripe";
 // import { db } from './firebase';
 // import { firestore } from 'firebase-admin';
 /**
@@ -7,26 +7,26 @@ import Stripe from 'stripe';
  */
 async function webhookHandlers(event: Stripe.Event) {
   switch (event.type) {
-    case 'payment_intent.succeeded':
+    case "payment_intent.succeeded":
       // const paymentIntent = event.data.object;
       // Then define and call a function to handle the event payment_intent.succeeded
       break;
     // ... handle other event types
-    case 'checkout.session.completed':
+    case "checkout.session.completed":
       // Add your business logic here
-      console.log('checkout.session.completed hook received!');
+      console.log("checkout.session.completed hook received!");
       break;
 
-    case 'payment_intent.succeeded':
-      // Add your business logic here
-      break;
-
-    case 'payment_intent.payment_failed':
+    case "payment_intent.succeeded":
       // Add your business logic here
       break;
 
-    case 'customer.subscription.deleted':
-      console.log('customer.subscription.deleted hook received!');
+    case "payment_intent.payment_failed":
+      // Add your business logic here
+      break;
+
+    case "customer.subscription.deleted":
+      console.log("customer.subscription.deleted hook received!");
       // const customer = (await stripe.customers.retrieve(
       //   data.customer as string
       // )) as Stripe.Customer;
@@ -39,8 +39,8 @@ async function webhookHandlers(event: Stripe.Event) {
       // });
       break;
 
-    case 'customer.subscription.created':
-      console.log('customer.subscription.created hook received!');
+    case "customer.subscription.created":
+      console.log("customer.subscription.created hook received!");
       // const customer = (await stripe.customers.retrieve(
       //   data.customer as string
       // )) as Stripe.Customer;
@@ -52,11 +52,11 @@ async function webhookHandlers(event: Stripe.Event) {
       // });
       break;
 
-    case 'invoice.payment_succeeded':
+    case "invoice.payment_succeeded":
       // Add your business logic here
       break;
 
-    case 'invoice.payment_failed':
+    case "invoice.payment_failed":
       //   const customer = (await stripe.customers.retrieve(
       //     data.customer as string
       //   )) as Stripe.Customer;
@@ -76,10 +76,10 @@ async function webhookHandlers(event: Stripe.Event) {
  * Validate the stripe webhook secret, then call the handler for the event type
  */
 export const handleStripeWebhook = async (req, res) => {
-  const sig = req.headers['stripe-signature'];
+  const sig = req.headers["stripe-signature"];
 
   const event = stripe.webhooks.constructEvent(
-    req['rawBody'],
+    req["rawBody"],
     sig,
     process.env.STRIPE_WEBHOOK_SECRET
   );

@@ -1,4 +1,4 @@
-import { stripe } from './';
+import { stripe } from "./api";
 
 /**
  * Create a Payment Intent with a specific amount
@@ -6,7 +6,7 @@ import { stripe } from './';
 export async function createPaymentIntent(amount: number) {
   const paymentIntent = await stripe.paymentIntents.create({
     amount,
-    currency: 'usd',
+    currency: "usd",
     // receipt_email: 'hello@fireship.io',
   });
 
@@ -26,7 +26,7 @@ export async function createPaymentIntentAndCharge(
     amount,
     customer,
     payment_method,
-    currency: 'usd',
+    currency: "usd",
     off_session: true,
     confirm: true,
   });

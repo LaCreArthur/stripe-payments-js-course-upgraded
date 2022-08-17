@@ -1,28 +1,29 @@
 :root {
-  --bg:  #242526;
+  --bg: #242526;
   --bg-accent: #484a4d;
   --text-color: #dadce1;
   --nav-size: 60px;
   --border: 1px solid #474a4d;
   --border-radius: 8px;
-  --speed: 500ms; 
+  --speed: 500ms;
 }
 
 body {
   margin: 0;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-main, .form-inline {
+main,
+.form-inline {
   text-align: center;
   padding: 10px;
   justify-content: center;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
@@ -39,7 +40,7 @@ ul {
 
 ul a {
   color: var(--text-color);
-  text-decoration: none;;
+  text-decoration: none;
 }
 
 /* Top Navigation Bar */
@@ -79,7 +80,7 @@ nav {
 .well {
   max-width: 728px;
   border: solid 1px var(--text-color);
-  border-radius: 6px;;
+  border-radius: 6px;
   padding: 1.5rem;
   margin: 10px auto;
 }
@@ -92,4 +93,3 @@ nav {
   max-width: 728px;
   margin: 10px auto;
 }
-

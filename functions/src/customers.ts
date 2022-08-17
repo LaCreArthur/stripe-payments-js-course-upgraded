@@ -1,6 +1,6 @@
-import { stripe } from '.';
-import { db } from './firebase';
-import Stripe from 'stripe';
+import { stripe } from "./api";
+import { db } from "./firebase";
+import Stripe from "stripe";
 
 /**
  * Creates a SetupIntent used to save a credit card for later use
@@ -21,7 +21,7 @@ export async function listPaymentMethods(userId: string) {
 
   return stripe.paymentMethods.list({
     customer: customer.id,
-    type: 'card',
+    type: "card",
   });
 }
 
@@ -32,7 +32,7 @@ export async function getOrCreateCustomer(
   userId: string,
   params?: Stripe.CustomerCreateParams
 ) {
-  const userSnapshot = await db.collection('users').doc(userId).get();
+  const userSnapshot = await db.collection("users").doc(userId).get();
 
   const { stripeCustomerId, email } = userSnapshot.data() || {};
 

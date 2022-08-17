@@ -1,18 +1,23 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from "express";
 export const app = express();
 
-import cors from 'cors';
-import { auth } from './firebase';
-import { createStripeCheckoutSession } from './checkout';
-import { createPaymentIntent } from './payments';
-import { createSetupIntent, listPaymentMethods } from './customers';
+import cors from "cors";
+import { auth } from "./firebase";
+import { createStripeCheckoutSession } from "./checkout";
+import { createPaymentIntent } from "./payments";
+import { createSetupIntent, listPaymentMethods } from "./customers";
 import {
   createSubscription,
   cancelSubscription,
   listSubscriptions,
-} from './billing';
-import { handleStripeWebhook } from './webhooks';
-import bodyParser from 'body-parser';
+} from "./billing";
+import { handleStripeWebhook } from "./webhooks";
+import bodyParser from "body-parser";
+
+import Stripe from "stripe";
+export const stripe = new Stripe(process.env.STRIPE_SECRET, {
+  apiVersion: "2022-08-01",
+});
 
 ////// MIDDLEWARE  //////
 
@@ -22,7 +27,7 @@ app.use(cors({ origin: true }));
 // Sets rawBody for webhook handling
 app.use(
   express.json({
-    verify: (req, res, buffer) => (req['rawBody'] = buffer),
+    verify: (req, res, buffer) => (req["rawBody"] = buffer),
   })
 );
 
@@ -34,12 +39,12 @@ app.use(decodeJWT);
  * Makes the currentUser (firebase) data available on the body.
  */
 async function decodeJWT(req: Request, res: Response, next: NextFunction) {
-  if (req.headers?.authorization?.startsWith('Bearer ')) {
-    const idToken = req.headers?.authorization?.split('Bearer ')[1];
+  if (req.headers?.authorization?.startsWith("Bearer ")) {
+    const idToken = req.headers?.authorization?.split("Bearer ")[1];
 
     try {
       const decodedToken = await auth.verifyIdToken(idToken);
-      req['currentUser'] = decodedToken;
+      req["currentUser"] = decodedToken;
     } catch (error) {
       console.error(error);
     }
@@ -63,10 +68,10 @@ function runAsync(callback: Function) {
  * Throws an error if the currentUser does not exist on the request
  */
 function validateUser(req: Request) {
-  const user = req['currentUser'];
+  const user = req["currentUser"];
   if (!user) {
     throw new Error(
-      'You must be logged in to make this request. i.e. Authorization: Bearer <token>'
+      "You must be logged in to make this request. i.e. Authorization: Bearer <token>"
     );
   }
 
@@ -84,7 +89,7 @@ function validateUser(req: Request) {
  * Checkouts
  */
 app.post(
-  '/checkouts/',
+  "/checkouts/",
   runAsync(async ({ body }: Request, res: Response) => {
     res.send(await createStripeCheckoutSession(body.line_items));
   })
@@ -96,7 +101,7 @@ app.post(
 
 // Create a PaymentIntent
 app.post(
-  '/payments',
+  "/payments",
   runAsync(async ({ body }: Request, res: Response) => {
     res.send(await createPaymentIntent(body.amount));
   })
@@ -108,7 +113,7 @@ app.post(
 
 // Save a card on the customer record with a SetupIntent
 app.post(
-  '/wallet',
+  "/wallet",
   runAsync(async (req: Request, res: Response) => {
     const user = validateUser(req);
     const setupIntent = await createSetupIntent(user.uid);
@@ -118,7 +123,7 @@ app.post(
 
 // Retrieve all cards attached to a customer
 app.get(
-  '/wallet',
+  "/wallet",
   runAsync(async (req: Request, res: Response) => {
     const user = validateUser(req);
 
@@ -133,7 +138,7 @@ app.get(
 
 // Create a and charge new Subscription
 app.post(
-  '/subscriptions/',
+  "/subscriptions/",
   runAsync(async (req: Request, res: Response) => {
     const user = validateUser(req);
     const { plan, payment_method } = req.body;
@@ -148,7 +153,7 @@ app.post(
 
 // Get all subscriptions for a customer
 app.get(
-  '/subscriptions/',
+  "/subscriptions/",
   runAsync(async (req: Request, res: Response) => {
     const user = validateUser(req);
 
@@ -160,7 +165,7 @@ app.get(
 
 // Unsubscribe or cancel a subscription
 app.patch(
-  '/subscriptions/:id',
+  "/subscriptions/:id",
   runAsync(async (req: Request, res: Response) => {
     const user = validateUser(req);
     res.send(await cancelSubscription(user.uid, req.params.id));
@@ -173,7 +178,7 @@ app.patch(
 
 // Handle webhooks
 app.post(
-  '/hooks',
-  bodyParser.raw({ type: 'application/json' }),
+  "/hooks",
+  bodyParser.raw({ type: "application/json" }),
   runAsync(handleStripeWebhook)
 );

@@ -1,18 +1,16 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { fetchFromAPI } from './helpers';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { useUser, AuthCheck } from 'reactfire';
-import firebase from 'firebase/app';
-
-import { auth, db } from './firebase';
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { Suspense, useEffect, useState } from "react";
+import { useSigninCheck, useUser } from "reactfire";
+import { db, auth } from "./firebase";
+import { fecthFromAPI } from "./helper";
 
 export function SignIn() {
   const signIn = async () => {
-    const credential = await auth.signInWithPopup(
-      new firebase.auth.GoogleAuthProvider()
-    );
-    const { uid, email } = credential.user;
-    db.collection('users').doc(uid).set({ email }, { merge: true });
+    const cred = await signInWithPopup(auth, new GoogleAuthProvider());
+    const { uid, email } = cred.user;
+    setDoc(doc(db, "users", uid), { email }, { merge: true });
   };
 
   return (
@@ -23,11 +21,15 @@ export function SignIn() {
 }
 
 export function SignOut(props) {
-  return props.user && (
-
-      <button className="btn btn-outline-secondary" onClick={() => auth.signOut()}>
+  return (
+    props.user && (
+      <button
+        className="btn btn-outline-secondary"
+        onClick={() => signOut(auth)}
+      >
         Sign Out User {props.user.uid}
       </button>
+    )
   );
 }
 
@@ -35,69 +37,67 @@ function SaveCard(props) {
   const stripe = useStripe();
   const elements = useElements();
   const user = useUser();
+  const { data: signInCheckResult } = useSigninCheck();
 
   const [setupIntent, setSetupIntent] = useState();
   const [wallet, setWallet] = useState([]);
 
-  // Get the user's wallet on mount
+  // get the user's wallet on mount
   useEffect(() => {
     getWallet();
-  }, [user]);
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Create the setup intent
+  // create the setup intent
   const createSetupIntent = async (event) => {
-    const si = await fetchFromAPI('wallet');
+    const si = await fecthFromAPI("wallet");
     setSetupIntent(si);
-  };
-
-  // Handle the submission of card details
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const cardElement = elements.getElement(CardElement);
-
-    // Confirm Card Setup
-    const {
-      setupIntent: updatedSetupIntent,
-      error,
-    } = await stripe.confirmCardSetup(setupIntent.client_secret, {
-      payment_method: { card: cardElement },
-    });
-
-    if (error) {
-      alert(error.message);
-      console.log(error);
-    } else {
-      setSetupIntent(updatedSetupIntent);
-      await getWallet();
-      alert('Success! Card added to your wallet');
-    }
   };
 
   const getWallet = async () => {
     if (user) {
-      const paymentMethods = await fetchFromAPI('wallet', { method: 'GET' });
+      const paymentMethods = await fecthFromAPI("wallet", { method: "GET" });
       setWallet(paymentMethods);
     }
   };
 
-  return (
-    <>
-      <h2>Customers</h2>
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const cardElement = elements.getElement(CardElement);
 
-      <p>
-        Save credit card details for future use. Connect a Stripe Customer ID to
-        a Firebase User ID.
-      </p>
+    // Confirm card setup
+    const { setupIntent: updatedSetupIntent, error } =
+      await stripe.confirmCardSetup(setupIntent.client_secret, {
+        payment_method: { card: cardElement },
+      });
 
-      <AuthCheck fallback={<SignIn />}>
+    if (error) {
+      alert(error.message);
+      console.error(error);
+    } else {
+      setSetupIntent(updatedSetupIntent);
+      await getWallet();
+      alert("Success! Card added to your wallet");
+    }
+  };
+
+  if (signInCheckResult?.signedIn === true) {
+    return (
+      <>
+        <h2>Customers</h2>
+
+        <p>
+          Save credit card details for future use. Connect a Stripe Customer ID
+          to a Firebase User ID.
+        </p>
+
         <div className="well">
           <h3>Step 1: Create a Setup Intent</h3>
 
           <button
             className="btn btn-success"
             onClick={createSetupIntent}
-            hidden={setupIntent}>
+            hidden={setupIntent}
+          >
             Attach New Credit Card
           </button>
         </div>
@@ -106,7 +106,8 @@ function SaveCard(props) {
         <form
           onSubmit={handleSubmit}
           className="well"
-          hidden={!setupIntent || setupIntent.status === 'succeeded'}>
+          hidden={!setupIntent || setupIntent.status === "succeeded"}
+        >
           <h3>Step 2: Submit a Payment Method</h3>
           <p>Collect credit card details, then attach the payment source.</p>
           <p>
@@ -135,9 +136,9 @@ function SaveCard(props) {
         <div className="well">
           <SignOut user={user} />
         </div>
-      </AuthCheck>
-    </>
-  );
+      </>
+    );
+  } else return <SignIn />;
 }
 
 function CreditCard(props) {
@@ -151,7 +152,7 @@ function CreditCard(props) {
 
 export default function Customers() {
   return (
-    <Suspense fallback={'loading user'}>
+    <Suspense fallback={"loading user"}>
       <SaveCard />
     </Suspense>
   );
